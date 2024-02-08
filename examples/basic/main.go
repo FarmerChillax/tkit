@@ -18,6 +18,7 @@ func main() {
 	err = builder.ListenGinServer(&tkit.GinApplication{
 		RegisterHttpRoute: func(e *gin.Engine) error {
 			e.GET("/ping", func(c *gin.Context) {
+				tkit.Logger.Infof(c.Request.Context(), "headers: %v", c.Request.Header)
 				c.JSON(200, gin.H{
 					"message": "pong",
 				})

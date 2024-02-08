@@ -32,11 +32,14 @@ func (m *GinMiddleware) Register(engine *gin.Engine) {
 
 func (m *GinMiddleware) AccessLog() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		requestUrl := c.Request.RequestURI
 		startT := time.Now()
 		c.Next()
 		latency := time.Since(startT)
-		logInfo := "access request, method: %v, uri: %v, status_code: %v, latency: %v"
-		m.TracerLogger.WithContext(c.Request.Context()).Infof(logInfo, c.Request.Method, c.Request.RequestURI, c.Writer.Status(), latency)
+
+		logInfo := "access request, client ip: %v, method: %v, uri: %v, status_code: %v, latency: %v, client UA: %v"
+		m.TracerLogger.WithContext(c.Request.Context()).Infof(logInfo, c.ClientIP(), c.Request.Method,
+			requestUrl, c.Writer.Status(), latency, c.Request.UserAgent())
 	}
 }
 

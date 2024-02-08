@@ -18,6 +18,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.22.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.6
+	gorm.io/plugin/opentelemetry v0.1.4
 )
 
 require (
