@@ -25,9 +25,9 @@ func NewGormDB(conf *config.DatabseConfig) (*gorm.DB, error) {
 	}
 
 	if utils.IsDev() {
-		db.Logger.LogMode(logger.Info)
+		db.Logger = db.Logger.LogMode(logger.Info)
 	} else {
-		db.Logger.LogMode(logger.Error)
+		db.Logger = db.Logger.LogMode(logger.Error)
 	}
 
 	sqlDB, err := db.DB()
