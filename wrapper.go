@@ -79,7 +79,7 @@ func Wrap[Request any, Response any](handler func(c *gin.Context, requestDTO *Re
 		}
 		// 嵌入通用响应格式并返回结果
 		if !ctx.Writer.Written() {
-			ctx.JSON(http.StatusOK, response)
+			ResultData(ctx, response)
 		}
 	}
 }
