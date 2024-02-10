@@ -16,6 +16,7 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.22.0
 	go.opentelemetry.io/otel/sdk v1.22.0
 	go.opentelemetry.io/otel/trace v1.22.0
+	golang.org/x/sync v0.3.0
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.6
 	gorm.io/plugin/opentelemetry v0.1.4

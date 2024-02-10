@@ -50,6 +50,10 @@ func (e *err) StatusCode() int {
 	return http.StatusInternalServerError
 }
 
+// func (e *err) Status() string {
+// 	return e.status
+// }
+
 func (e *err) WithID(id string) Error {
 	e.id = id
 	return e
