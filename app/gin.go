@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -17,6 +18,7 @@ import (
 	"github.com/FarmerChillax/tkit/internal/middlewares"
 	"github.com/FarmerChillax/tkit/pkg/helper"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/sync/errgroup"
 )
 
 func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
@@ -52,30 +54,39 @@ func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
 		Addr:    addr,
 		Handler: engine,
 	}
-	errChan := make(chan error)
-	stopChan := make(chan os.Signal, 1)
-	signal.Notify(stopChan, syscall.SIGTERM, syscall.SIGINT)
-	go func() {
+
+	eg, ctx := errgroup.WithContext(context.Background())
+	eg.Go(func() error {
 		ginApp.TracerLogger.Infof("Start http server listen on: %s .", addr)
-		errChan <- server.ListenAndServe()
-	}()
+		return server.ListenAndServe()
+	})
 
 	// 服务退出处理事项
-	var signal os.Signal
-	select {
-	case err := <-errChan:
-		return err
-	case signal = <-stopChan:
-		// 程序退出
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
-		defer cancel()
-		if err := server.Shutdown(ctx); err != nil {
-			log.Fatal("Server Shutdown:", err)
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, syscall.SIGTERM, syscall.SIGINT)
+	var stopSignal os.Signal
+	eg.Go(func() error {
+		select {
+		case <-ctx.Done():
+			return nil
+		case stopSignal = <-stopChan:
+			// 程序退出
+			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+			defer cancel()
+			if err := server.Shutdown(ctx); err != nil {
+				log.Fatal("Server Shutdown:", err)
+			}
+
+			return nil
 		}
+	})
+
+	if err := eg.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		return err
 	}
 
 	if ginApp.RegisterGracefulStopHandler != nil {
-		if err := ginApp.RegisterGracefulStopHandler(signal); err != nil {
+		if err := ginApp.RegisterGracefulStopHandler(stopSignal); err != nil {
 			return fmt.Errorf("ginApp.RegisterGracefulStopHandler err: %v", err)
 		}
 	}
