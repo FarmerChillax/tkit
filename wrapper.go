@@ -8,7 +8,7 @@ import (
 
 // 自动校验请求参数并将其绑定到 DTO 中
 // 返回 DTO 与 错误信息
-func ShouldBindAndValid[T any](c *gin.Context, v T) (T, error) {
+func shouldBindAndValid[T any](c *gin.Context, v T) (T, error) {
 	err := c.ShouldBind(v)
 	if err != nil {
 		// errs, ok := err.(validator.ValidationErrors)
@@ -57,7 +57,7 @@ func Wrap[Request any, Response any](handler func(c *gin.Context, requestDTO *Re
 	return func(ctx *gin.Context) {
 		requestDTO := new(Request)
 
-		requestDTO, err := ShouldBindAndValid(ctx, requestDTO)
+		requestDTO, err := shouldBindAndValid(ctx, requestDTO)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"message": err.Error(),
