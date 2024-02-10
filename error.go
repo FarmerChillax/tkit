@@ -54,17 +54,29 @@ func (e *err) StatusCode() int {
 // 	return e.status
 // }
 
+func (e *err) clone() *err {
+	return &err{
+		statusCode: e.statusCode,
+		code:       e.code,
+		msg:        e.msg,
+		id:         e.id,
+	}
+}
+
 func (e *err) WithID(id string) Error {
-	e.id = id
-	return e
+	newErr := e.clone()
+	newErr.id = id
+	return newErr
 }
 
 func (e *err) WithStatusCode(statusCode int) Error {
-	e.statusCode = statusCode
-	return e
+	newErr := e.clone()
+	newErr.statusCode = statusCode
+	return newErr
 }
 
 func (e *err) WithMsg(msg string) Error {
-	e.msg = msg
-	return e
+	newErr := e.clone()
+	newErr.msg = msg
+	return newErr
 }
