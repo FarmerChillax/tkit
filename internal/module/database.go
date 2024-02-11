@@ -6,6 +6,7 @@ import (
 	"github.com/FarmerChillax/tkit/config"
 	"github.com/FarmerChillax/tkit/pkg/helper"
 	"gorm.io/gorm"
+	"gorm.io/plugin/opentelemetry/tracing"
 )
 
 // var mysqlOnce sync.Once
@@ -15,15 +16,21 @@ type databseConn struct {
 }
 
 func (mc *databseConn) Get(ctx context.Context) *gorm.DB {
-	return mc.client
-}
-
-func wrapGorm(db *gorm.DB, err error) (*databseConn, error) {
-	return &databseConn{
-		client: db,
-	}, err
+	return mc.client.WithContext(ctx)
 }
 
 func NewDatabase(conf *config.DatabseConfig) (*databseConn, error) {
-	return wrapGorm(helper.NewGormDB(conf))
+	db, err := helper.NewGormDB(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Use(tracing.NewPlugin())
+	if err != nil {
+		return nil, err
+	}
+
+	return &databseConn{
+		client: db,
+	}, err
 }

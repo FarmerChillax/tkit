@@ -14,7 +14,9 @@ type logger struct {
 }
 
 func Register(loggerConf *config.LoggerConfig) error {
-	l := helper.NewLogger(nil)
+	l := helper.NewLogger()
+	l.SetFormatter(helper.NewDefaultFormatter())
+
 	tkit.Logger = &logger{
 		log: l,
 	}

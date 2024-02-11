@@ -26,7 +26,7 @@ func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
 	engine := gin.New()
 
 	if ginApp.TracerLogger == nil {
-		ginApp.TracerLogger = helper.NewLogger(nil)
+		ginApp.TracerLogger = helper.NewTracerLogger()
 	}
 
 	// 服务注册

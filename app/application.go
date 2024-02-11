@@ -34,14 +34,14 @@ func NewBuilder(app *tkit.Application) (*Builder, error) {
 	}
 
 	// 初始化 otel
-	_, err = otel.RegisterTracer(app.Name, nil)
+	_, err = otel.RegisterTracer(app.Name, conf.GetOtelConfig().Exporter)
 	if err != nil {
 		log.Println("RegisterTracer err: ", err)
 		return nil, err
 	}
 
 	// 初始化日志
-	err = xlog.Register(config.GetLoggerConfig())
+	err = xlog.Register(conf.GetLoggerConfig())
 	if err != nil {
 		log.Println("Register Logger err: ", err)
 		return nil, err

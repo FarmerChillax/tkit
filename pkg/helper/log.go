@@ -7,15 +7,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func NewLogger(formatter logrus.Formatter) *logrus.Logger {
-	if formatter == nil {
-		formatter = NewDefaultFormatter()
-	}
-
+func NewLogger() *logrus.Logger {
 	log := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: formatter,
-		Level:     logrus.InfoLevel,
+		Out:   os.Stderr,
+		Level: logrus.InfoLevel,
 		// Level:        convertLogLevel(DefaultLogLevel),
 		ReportCaller: true,
 		ExitFunc:     os.Exit,
@@ -23,6 +18,12 @@ func NewLogger(formatter logrus.Formatter) *logrus.Logger {
 	}
 
 	return log
+}
+
+func NewTracerLogger() *logrus.Logger {
+	l := NewLogger()
+	l.SetFormatter(NewDefaultFormatter())
+	return l
 }
 
 type Formatter struct {

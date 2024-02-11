@@ -1,6 +1,11 @@
 package config
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/sirupsen/logrus"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+)
+
+var config *Config
 
 type Config struct {
 	// 全局请求超时
@@ -11,12 +16,7 @@ type Config struct {
 	Database *DatabseConfig `json:"mysql,omitempty" mapstructure:"database"`
 	Redis    *RedisConfig   `json:"redis,omitempty"`
 	Logger   *LoggerConfig  `json:"logger,omitempty"`
-}
-
-var config *Config
-
-func Get() *Config {
-	return config
+	Otel     *OtelConfig    `json:"otel,omitempty"`
 }
 
 type DatabseConfig struct {
@@ -30,13 +30,14 @@ type DatabseConfig struct {
 	ConnMaxLifeSecond int    `json:"conn_max_life_second,omitempty"`
 }
 
-func GetDatabase() *DatabseConfig {
-	if config.Database == nil {
-		config.Database = &DatabseConfig{
+func (c *Config) GetDatabase() *DatabseConfig {
+	if c.Database == nil {
+		c.Database = &DatabseConfig{
 			Driver: "sqlite3",
+			Dsn:    ":memory:",
 		}
 	}
-	return config.Database
+	return c.Database
 }
 
 type RedisConfig struct {
@@ -47,11 +48,11 @@ type RedisConfig struct {
 	MaxIdle  int
 }
 
-func GetRedis() *RedisConfig {
-	// if config.Redis == nil {
-	// 	return &defaultRedisConfig
-	// }
-	return config.Redis
+func (c *Config) GetRedis() *RedisConfig {
+	if c.Redis == nil {
+		c.Redis = &RedisConfig{}
+	}
+	return c.Redis
 }
 
 type LoggerConfig struct {
@@ -59,9 +60,20 @@ type LoggerConfig struct {
 	RootPath  string
 }
 
-func GetLoggerConfig() *LoggerConfig {
-	if config.Logger == nil {
-		config.Logger = &LoggerConfig{}
+func (c *Config) GetLoggerConfig() *LoggerConfig {
+	if c.Logger == nil {
+		c.Logger = &LoggerConfig{}
 	}
-	return config.Logger
+	return c.Logger
+}
+
+type OtelConfig struct {
+	Exporter sdktrace.SpanExporter
+}
+
+func (c *Config) GetOtelConfig() *OtelConfig {
+	if c.Otel == nil {
+		c.Otel = &OtelConfig{}
+	}
+	return c.Otel
 }
