@@ -1,0 +1,24 @@
+site_name: tkit
+theme:
+  name: material
+  language: zh
+
+  icon:
+    repo: fontawesome/brands/git-alt 
+
+  features:
+    - navigation.top
+
+
+repo_url: https://github.com/FarmerChillax/tkit
+repo_name: FarmerChillax/tkit
+
+extra:
+  analytics:
+    provider: google
+    property: UA-XXXXXXXX-X
+  
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+
