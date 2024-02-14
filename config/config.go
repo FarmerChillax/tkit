@@ -1,6 +1,6 @@
 package config
 
-var config *Config
+// var config *Config
 
 type Config struct {
 	// 全局请求超时

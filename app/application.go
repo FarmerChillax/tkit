@@ -15,18 +15,19 @@ type Builder struct {
 	Application *tkit.Application
 }
 
-func NewBuilder(app *tkit.Application) (*Builder, error) {
+func NewBuilder(app *tkit.Application) (builder *Builder, err error) {
 	// tkit.ApplicationInstance = app
 	if err := validateAndMergeAppConfig(app); err != nil {
 		return nil, err
 	}
 
 	// 初始化 config
-	conf, err := config.InitGlobalConfig(app.Config)
+	app.Config, err = config.InitGlobalConfig(app.Config)
 	if err != nil {
 		log.Println("InitGlobalConfig err: ", err)
 		return nil, err
 	}
+
 	err = runCallback(tkit.POSITION_GLOBAL_CONFIG, app.RegisterCallback)
 	if err != nil {
 		log.Println("runCallback POSITION_GLOBAL_CONFIG err: ", err)
@@ -34,14 +35,14 @@ func NewBuilder(app *tkit.Application) (*Builder, error) {
 	}
 
 	// 初始化 otel
-	_, err = otel.RegisterTracer(app.Name, conf.GetOtelConfig().Exporter)
+	_, err = otel.RegisterTracer(app.Name, app.Config.GetOtelConfig().Exporter)
 	if err != nil {
 		log.Println("RegisterTracer err: ", err)
 		return nil, err
 	}
 
 	// 初始化日志
-	err = xlog.Register(conf.GetLoggerConfig())
+	err = xlog.Register(app.Config.GetLoggerConfig())
 	if err != nil {
 		log.Println("Register Logger err: ", err)
 		return nil, err
@@ -53,7 +54,7 @@ func NewBuilder(app *tkit.Application) (*Builder, error) {
 	}
 
 	// 初始化内置组件
-	if err := module.Register(conf); err != nil {
+	if err := module.Register(app.Config); err != nil {
 		log.Println("Register Modules err: ", err)
 		return nil, err
 	}

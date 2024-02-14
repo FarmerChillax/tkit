@@ -16,16 +16,20 @@ import (
 	"github.com/FarmerChillax/tkit/internal/metrics"
 	"github.com/FarmerChillax/tkit/internal/middlewares"
 	"github.com/FarmerChillax/tkit/pkg/helper"
+	"github.com/common-nighthawk/go-figure"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 )
 
-func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
+func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) (err error) {
 	ginApp.Application = app.Application
 	engine := gin.New()
 
 	if ginApp.TracerLogger == nil {
-		ginApp.TracerLogger = helper.NewTracerLogger()
+		ginApp.TracerLogger, err = helper.NewTracerLogger(app.Application.Config.GetLoggerConfig())
+		if err != nil {
+			return err
+		}
 	}
 
 	// 服务注册
@@ -57,7 +61,8 @@ func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
 	// 这里的 context 或许应该从外部传入？
 	eg, ctx := errgroup.WithContext(context.Background())
 	eg.Go(func() error {
-		ginApp.TracerLogger.Infof("Start http server listen on: %s .", addr)
+		figure.NewFigure("Kit start", "", true).Print()
+		ginApp.TracerLogger.Infof("http server listen on: %s .", addr)
 		return server.ListenAndServe()
 	})
 

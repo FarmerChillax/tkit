@@ -4,16 +4,15 @@ import "github.com/FarmerChillax/tkit/pkg/utils"
 
 func InitGlobalConfig(conf *Config) (*Config, error) {
 	if conf != nil {
-		config = conf
-		return config, nil
+		return conf, nil
 	}
 
-	config = getConfigFromEnv()
-	return config, nil
+	conf = getConfigFromEnv()
+	return conf, nil
 }
 
 func getConfigFromEnv() *Config {
-	config = &Config{
+	config := &Config{
 		Timeout: int64(utils.GetEnvIntByDefault("TKIT_TIMEOUT", 10)),
 	}
 

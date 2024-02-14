@@ -21,14 +21,11 @@ var (
 )
 
 func init() {
-	log.Println("stark init.")
-
 	if _, err := os.Stat(*envFile); os.IsNotExist(err) {
 		log.Println("env file not found, use default env.")
 		return
 	}
 
-	log.Println("load env file from:", *envFile)
 	err := godotenv.Load(*envFile)
 	if err != nil {
 		log.Fatal("Error loading .env file")

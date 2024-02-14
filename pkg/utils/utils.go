@@ -30,3 +30,15 @@ func GetEnvIntByDefault(key string, defaultValue int) int {
 	}
 	return intVal
 }
+
+func GetEnvBoolByDefault(key string, defaultValue bool) bool {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	boolVal, err := strconv.ParseBool(value)
+	if err != nil {
+		return defaultValue
+	}
+	return boolVal
+}

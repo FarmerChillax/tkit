@@ -13,7 +13,7 @@ func main() {
 		Name: "basic-demo",
 	})
 	if err != nil {
-		log.Fatalln("app.New err: ", err)
+		log.Fatalln("app.NewBuilder err: ", err)
 	}
 	err = builder.ListenGinServer(&tkit.GinApplication{
 		RegisterHttpRoute: func(e *gin.Engine) error {
@@ -27,7 +27,7 @@ func main() {
 		},
 	})
 	if err != nil {
-		log.Fatalln("appBuilder.ListenGinServer err: ", err)
+		log.Fatalln("builder.ListenGinServer err: ", err)
 	}
 
 }
