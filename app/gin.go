@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -55,6 +54,7 @@ func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
 		Handler: engine,
 	}
 
+	// 这里的 context 或许应该从外部传入？
 	eg, ctx := errgroup.WithContext(context.Background())
 	eg.Go(func() error {
 		ginApp.TracerLogger.Infof("Start http server listen on: %s .", addr)
@@ -68,13 +68,13 @@ func (app *Builder) ListenGinServer(ginApp *tkit.GinApplication) error {
 	eg.Go(func() error {
 		select {
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 		case stopSignal = <-stopChan:
 			// 程序退出
 			ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 			defer cancel()
 			if err := server.Shutdown(ctx); err != nil {
-				log.Fatal("Server Shutdown:", err)
+				return fmt.Errorf("server shutdown: %w", err)
 			}
 
 			return nil
