@@ -1,10 +1,5 @@
 package config
 
-import (
-	"github.com/sirupsen/logrus"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-)
-
 var config *Config
 
 type Config struct {
@@ -19,61 +14,42 @@ type Config struct {
 	Otel     *OtelConfig    `json:"otel,omitempty"`
 }
 
-type DatabseConfig struct {
-	Dsn               string `json:"dsn,omitempty"`
-	Driver            string `json:"driver,omitempty"`
-	Loc               string `json:"loc,omitempty"`
-	ParseTime         string `json:"parse_time,omitempty"`
-	Timeout           int64  `json:"timeout,omitempty"`
-	MaxOpen           int    `json:"max_open,omitempty"`
-	MaxIdle           int    `json:"max_idle,omitempty"`
-	ConnMaxLifeSecond int    `json:"conn_max_life_second,omitempty"`
-}
-
+// 获取数据库配置
+// 如果没有配置，则从环境变量读取
+// 如果环境变量没有配置，则使用默认配置
 func (c *Config) GetDatabase() *DatabseConfig {
 	if c.Database == nil {
-		c.Database = &DatabseConfig{
-			Driver: "sqlite3",
-			Dsn:    ":memory:",
-		}
+		c.Database = getDatabaseConfigFromEnv()
 	}
 	return c.Database
 }
 
-type RedisConfig struct {
-	Addr     string
-	Password string
-	DB       int
-	PoolSize int
-	MaxIdle  int
-}
-
+// 获取 redis 配置
+// 如果没有配置，则从环境变量读取
+// 如果环境变量没有配置，则使用默认配置
 func (c *Config) GetRedis() *RedisConfig {
 	if c.Redis == nil {
-		c.Redis = &RedisConfig{}
+		c.Redis = getRedisConfigFromEnv()
 	}
 	return c.Redis
 }
 
-type LoggerConfig struct {
-	Formatter logrus.Formatter
-	RootPath  string
-}
-
+// 获取 logger 配置
+// 如果没有配置，则从环境变量读取
+// 如果环境变量没有配置，则使用默认配置
 func (c *Config) GetLoggerConfig() *LoggerConfig {
 	if c.Logger == nil {
-		c.Logger = &LoggerConfig{}
+		c.Logger = getLoggerConfigFromEnv()
 	}
 	return c.Logger
 }
 
-type OtelConfig struct {
-	Exporter sdktrace.SpanExporter
-}
-
+// 获取 otel 配置
+// 如果没有配置，则从环境变量读取
+// 如果环境变量没有配置，则使用默认配置
 func (c *Config) GetOtelConfig() *OtelConfig {
 	if c.Otel == nil {
-		c.Otel = &OtelConfig{}
+		c.Otel = getOtelConfigFromEnv()
 	}
 	return c.Otel
 }
