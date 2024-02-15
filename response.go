@@ -13,6 +13,10 @@ import (
 
 // var Response ResponseIface
 
+type ResponseDataIface interface {
+	GetStatus() string
+}
+
 type ResponseDTO struct {
 	Code   int    `json:"code"`
 	Msg    string `json:"msg"`
@@ -20,11 +24,18 @@ type ResponseDTO struct {
 	Status string `json:"status"`
 }
 
+func (r *ResponseDTO) GetStatus() string {
+	if r.Status != "" {
+		return r.Status
+	}
+	return "ok"
+}
+
 func ResultData(ctx *gin.Context, data interface{}) {
 	resp := ResponseDTO{
 		Msg:    "success",
 		Data:   data,
-		Status: "success",
+		Status: "ok",
 	}
 	ctx.JSON(200, resp)
 }
