@@ -31,24 +31,21 @@ func (r *ResponseDTO) GetStatus() string {
 	return "ok"
 }
 
+// Result default func
+// Result 方法的默认值包装方法
 func ResultData(ctx *gin.Context, data interface{}) {
-	resp := ResponseDTO{
-		Msg:    "success",
-		Data:   data,
-		Status: "ok",
-	}
-	ctx.JSON(200, resp)
+	Result(ctx, defautlHttpStatusCode, defautlBizStatusCode, data, "", "success")
 }
 
 // Result result template
-func Result(ctx *gin.Context, code int, data interface{}, message string, status string) {
+func Result(ctx *gin.Context, httpCode, code int, data interface{}, message string, status string) {
 	response := ResponseDTO{
 		Code:   code,
 		Msg:    message,
 		Data:   data,
 		Status: status,
 	}
-	ctx.JSON(200, response)
+	ctx.JSON(httpCode, response)
 }
 
 // ResultError result failed
