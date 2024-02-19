@@ -1,6 +1,8 @@
 # tkit
 A lightweight framework base on Gin
 
+简易 Demo：https://github.com/FarmerChillax/tkit-layout
+
 ## 工具链
 - 日志
 - 监控告警
