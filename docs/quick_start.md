@@ -20,8 +20,19 @@ func main() {
 }
 ```
 
-1. 注册 http 路由
+2. 实现业务逻辑并注册 http 路由
 ```go
+type PingRequest struct{}
+
+type PingResponse struct {
+	Msg string `json:"message"`
+}
+
+func PingHandler(ctx *gin.Context, req *PingRequest) (*PingResponse, error) {
+	tkit.Logger.Infof(ctx, "headers: %v", ctx.Request.Header)
+	return &PingResponse{Msg: "pong"}, nil
+}
+
 func main() {
 	builder, err := app.NewBuilder(&tkit.Application{
 		Name: "basic-demo",
@@ -29,15 +40,11 @@ func main() {
 	if err != nil {
 		log.Fatalln("app.NewBuilder err: ", err)
 	}
+
 	err = builder.ListenGinServer(&tkit.GinApplication{
-        // 在此注册路由
 		RegisterHttpRoute: func(e *gin.Engine) error {
-			e.GET("/ping", func(c *gin.Context) {
-				tkit.Logger.Infof(c.Request.Context(), "headers: %v", c.Request.Header)
-				c.JSON(200, gin.H{
-					"message": "pong",
-				})
-			})
+			// 注册路由，并使用 wrap 方法进行请求参数解析和返回值封装
+			e.GET("/ping", tkit.Wrap(PingHandler))
 			return nil
 		},
 	})
