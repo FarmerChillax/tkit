@@ -72,14 +72,14 @@ func Wrap[Request any, Response any](handler func(c *gin.Context, requestDTO *Re
 			// 如果是框架定义的错误，就返回通用格式的错误详情
 			// 如果不是框架定义的错误，就返回 500 错误
 			if e, ok := err.(Error); ok {
-				ResultError(ctx, e)
+				AbortWithErrorJson(ctx, e)
 			} else {
 				ResultError(ctx, NewError(http.StatusInternalServerError, 0, err.Error()))
 			}
 		}
 		// 嵌入通用响应格式并返回结果
 		if !ctx.Writer.Written() {
-			ResultData(ctx, response)
+			SuccessJson(ctx, response)
 		}
 	}
 }
