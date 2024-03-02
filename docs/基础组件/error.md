@@ -12,9 +12,11 @@
 此外还提供了 id 字段用于可选的返回 RequestID
 
 ### 使用设计
+
 在实际开发中，同一个错误码会被反复使用，但其内部的信息可能在某些时候是需要临时修改的（比如 Msg）
-因此在 error 的设计上，框架提供了多个 `WithXXX` 方法，这些方法可以临时的将错误码内部信息进行修改，而不影响错误码本身
-使用方法：
+因此在 error 的设计上，框架提供了多个 `WithXXX` 方法，这些方法可以临时的将错误码内部信息进行修改，
+而不影响错误码本身，使用方法：
+
 ```go
 func (us *UserService) Register(ctx context.Context, req *api.UserRegisterRequest) (*api.EmptyResponse, error) {
 	db := tkit.Database.Get(ctx)
