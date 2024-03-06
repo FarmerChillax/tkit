@@ -1,6 +1,9 @@
 package tkit
 
 import (
+	"net/http"
+	"sync"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,6 +15,13 @@ import (
 // }
 
 // var Response ResponseIface
+
+var (
+	successHandler func(ctx *gin.Context, data any) any
+	successLock    sync.RWMutex
+	errorHandler   func(ctx *gin.Context, err Error) (int, any)
+	errorLock      sync.RWMutex
+)
 
 type ResponseDataIface interface {
 	GetStatus() string
@@ -62,4 +72,44 @@ func ResultError(ctx *gin.Context, err Error) {
 // 通用 json 响应
 func CommonJsonResult(ctx *gin.Context, code int, resp any) {
 	ctx.JSON(code, resp)
+}
+
+// SuccessJson 成功响应
+func SuccessJson(ctx *gin.Context, v any) {
+	successLock.RLock()
+	handlerCtx := successHandler
+	successLock.RUnlock()
+	if handlerCtx != nil {
+		v = handlerCtx(ctx, v)
+	}
+	CommonJsonResult(ctx, http.StatusOK, v)
+}
+
+// SetSuccessHandler 设置成功响应处理器
+func SetSuccessHandler(handler func(*gin.Context, any) any) {
+	successLock.Lock()
+	defer successLock.Unlock()
+	successHandler = handler
+}
+
+// AbortWithErrorJson 错误响应
+func AbortWithErrorJson(ctx *gin.Context, err Error) {
+	errorLock.RLock()
+	handlerCtx := errorHandler
+	errorLock.RUnlock()
+	if handlerCtx != nil {
+		statusCode, v := handlerCtx(ctx, err)
+		CommonJsonResult(ctx, statusCode, v)
+		return
+	}
+	ResultError(ctx, err)
+}
+
+// SetErrorHandler 设置错误响应处理器
+func SetErrorHandler(handler func(Error) (int, any)) {
+	errorLock.Lock()
+	defer errorLock.Unlock()
+	errorHandler = func(_ *gin.Context, err Error) (int, any) {
+		return handler(err)
+	}
 }
