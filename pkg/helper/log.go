@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -49,7 +48,6 @@ func NewDefaultFormatter() logrus.Formatter {
 }
 
 func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
-	fmt.Println("Formatter.Format: ", entry.Data)
 	// 不输出 file 字段
 	delete(entry.Data, "file")
 

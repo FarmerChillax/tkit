@@ -28,6 +28,7 @@ func main() {
 		Host: "0.0.0.0",
 		Port: 6000,
 		Config: &config.Config{
+			Timeout: 120,
 			Database: &config.DatabseConfig{
 				Driver: "sqlite3",
 				Dsn:    ":memory:",
@@ -52,10 +53,10 @@ func main() {
 					Name: "tkit",
 					Age:  18,
 				}
-				db := tkit.Database.Get(ctx)
+				db := tkit.Database.Get(ctx.Request.Context())
 				err := db.Table(User{}.TableName()).Create(&user).Error
 				if err != nil {
-					tkit.Logger.Errorf(ctx, "db.Table.Create err: %v", err)
+					tkit.Logger.Errorf(ctx.Request.Context(), "db.Table.Create err: %v", err)
 					ctx.JSON(500, gin.H{
 						"message": err.Error(),
 					})
@@ -68,19 +69,16 @@ func main() {
 			})
 			e.GET("/user", func(ctx *gin.Context) {
 				user := User{}
-				db := tkit.Database.Get(ctx)
+				db := tkit.Database.Get(ctx.Request.Context())
 				err := db.Table(User{}.TableName()).First(&user).Error
 				if err != nil {
-					tkit.Logger.Errorf(ctx, "db.Table.First err: %v", err)
+					tkit.Logger.Errorf(ctx.Request.Context(), "db.Table.First err: %v", err)
 					ctx.JSON(500, gin.H{
 						"message": err.Error(),
 					})
 					return
 				}
 				ctx.JSON(200, user)
-				// ctx.JSON(200, gin.H{
-				// 	"message": fmt.Sprintf("Hello %s", user.Name),
-				// })
 			})
 
 			return nil
