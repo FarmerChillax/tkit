@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"io"
 	"os"
 
 	"github.com/FarmerChillax/tkit/config"
@@ -10,14 +9,8 @@ import (
 )
 
 func NewLogger(loggerConf *config.LoggerConfig) (*logrus.Logger, error) {
-	f, err := os.OpenFile(loggerConf.OutputPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		return nil, err
-	}
-
-	multiWriter := io.MultiWriter(os.Stdout, f)
 	log := &logrus.Logger{
-		Out: multiWriter,
+		Out: os.Stdout,
 		// Level: logrus.InfoLevel,
 		Level:        logrus.Level(loggerConf.Level),
 		ReportCaller: loggerConf.ReportCaller,
