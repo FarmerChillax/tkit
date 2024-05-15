@@ -10,3 +10,10 @@ A lightweight framework base on Gin
 - 异步任务
 - 消息队列
 
+## Usage
+
+```bash
+go get github.com/FarmerChillax/tkit
+```
+
+

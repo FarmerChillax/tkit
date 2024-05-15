@@ -4,3 +4,4 @@ trace.info
 env/
 site/
 *.log
+.vscode/
