@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/FarmerChillax/tkit/config"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -43,6 +44,10 @@ func NewDefaultFormatter() logrus.Formatter {
 func (f *Formatter) Format(entry *logrus.Entry) ([]byte, error) {
 	// 不输出 file 字段
 	delete(entry.Data, "file")
+
+	if ginCtx, ok := entry.Context.(*gin.Context); ok {
+		entry.Context = ginCtx.Request.Context()
+	}
 
 	span := trace.SpanFromContext(entry.Context)
 	entry.Data["trace_id"] = span.SpanContext().TraceID().String()
