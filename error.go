@@ -4,45 +4,52 @@ import "net/http"
 
 type Error interface {
 	error
-	// WithID 设置当前请求的唯一ID
-	WithID(id string) Error
+	// WithRequestID 设置当前请求的唯一ID
+	// WithRequestID(requestId string) Error
 	// 设置 http status code
 	WithStatusCode(statusCode int) Error
 	// 设置错误描述
 	WithMsg(msg string) Error
+	// 设置错误栈
+	WithError(err error) Error
 
 	// 返回业务编码
-	Code() int
+	GetCode() int
 	// 返回对应的 http 状态码
-	StatusCode() int
+	GetStatusCode() int
+	// 返回错误描述
+	GetMsg() string
+
+	// 返回原始错误
+	Unwrap() error
 }
 
 type err struct {
 	statusCode int
-	code       int    // 业务编码
-	msg        string // 错误描述
-	id         string // 当前请求的唯一ID
+	Code       int    `json:"code,omitempty"` // 业务编码
+	Msg        string `json:"msg,omitempty"`  // 错误描述
+	// requestId  string // 当前请求的唯一ID
+	err error
 }
 
-// NewError 返回一个新的自定义错误
 // NewError 返回一个新的自定义错误
 func NewError(httpStatusCode, businessCode int, msg string) Error {
 	return &err{
 		statusCode: httpStatusCode,
-		code:       businessCode,
-		msg:        msg,
+		Code:       businessCode,
+		Msg:        msg,
 	}
 }
 
 func (e *err) Error() string {
-	return e.msg
+	return e.Msg
 }
 
-func (e *err) Code() int {
-	return e.code
+func (e *err) GetCode() int {
+	return e.Code
 }
 
-func (e *err) StatusCode() int {
+func (e *err) GetStatusCode() int {
 	if e.statusCode > 0 {
 		return e.statusCode
 	}
@@ -50,24 +57,24 @@ func (e *err) StatusCode() int {
 	return http.StatusInternalServerError
 }
 
-// func (e *err) Status() string {
-// 	return e.status
-// }
+func (e *err) GetMsg() string {
+	return e.Msg
+}
 
 func (e *err) clone() *err {
 	return &err{
 		statusCode: e.statusCode,
-		code:       e.code,
-		msg:        e.msg,
-		id:         e.id,
+		Code:       e.Code,
+		Msg:        e.Msg,
+		// requestId:  e.requestId,
 	}
 }
 
-func (e *err) WithID(id string) Error {
-	newErr := e.clone()
-	newErr.id = id
-	return newErr
-}
+// func (e *err) WithRequestID(requestId string) Error {
+// 	newErr := e.clone()
+// 	newErr.requestId = requestId
+// 	return newErr
+// }
 
 func (e *err) WithStatusCode(statusCode int) Error {
 	newErr := e.clone()
@@ -77,6 +84,15 @@ func (e *err) WithStatusCode(statusCode int) Error {
 
 func (e *err) WithMsg(msg string) Error {
 	newErr := e.clone()
-	newErr.msg = msg
+	newErr.Msg = msg
 	return newErr
+}
+func (e *err) WithError(err error) Error {
+	newErr := e.clone()
+	newErr.err = err
+	return newErr
+}
+
+func (e *err) Unwrap() error {
+	return e.err
 }
