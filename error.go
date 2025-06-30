@@ -1,6 +1,10 @@
 package tkit
 
-import "net/http"
+import (
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
 
 type Error interface {
 	error
@@ -10,6 +14,8 @@ type Error interface {
 	WithStatusCode(statusCode int) Error
 	// 设置错误描述
 	WithMsg(msg string) Error
+	WithMsgf(format string, args ...interface{}) Error
+
 	// 设置错误栈
 	WithError(err error) Error
 
@@ -41,6 +47,27 @@ func NewError(httpStatusCode, businessCode int, msg string) Error {
 	}
 }
 
+// 从字节流中解析错误，并返回是否为 tkit 的错误类型
+func NewErrorFromBytes(data []byte) (Error, bool) {
+	e := &err{
+		statusCode: http.StatusInternalServerError,
+		Code:       0,
+		Msg:        "未知错误",
+	}
+
+	err := json.Unmarshal(data, &e)
+	if err != nil {
+		return e.WithError(err).WithMsg(err.Error()), false
+	}
+
+	return e, true
+}
+
+// 从字符串中解析错误，并返回是否为 tkit 的错误类型
+func NewErrorFromString(data string) (Error, bool) {
+	return NewErrorFromBytes([]byte(data))
+}
+
 func (e *err) Error() string {
 	return e.Msg
 }
@@ -70,12 +97,6 @@ func (e *err) clone() *err {
 	}
 }
 
-// func (e *err) WithRequestID(requestId string) Error {
-// 	newErr := e.clone()
-// 	newErr.requestId = requestId
-// 	return newErr
-// }
-
 func (e *err) WithStatusCode(statusCode int) Error {
 	newErr := e.clone()
 	newErr.statusCode = statusCode
@@ -87,6 +108,13 @@ func (e *err) WithMsg(msg string) Error {
 	newErr.Msg = msg
 	return newErr
 }
+
+func (e *err) WithMsgf(format string, args ...interface{}) Error {
+	newErr := e.clone()
+	newErr.Msg = fmt.Sprintf(format, args...)
+	return newErr
+}
+
 func (e *err) WithError(err error) Error {
 	newErr := e.clone()
 	newErr.err = err
