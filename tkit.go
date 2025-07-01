@@ -2,48 +2,10 @@ package tkit
 
 import (
 	"context"
-	"flag"
-	"log"
-	"os"
 
-	"github.com/FarmerChillax/tkit/config"
-	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
-
-const (
-	VERSION = "v0.0.1"
-)
-
-var (
-	envFile = flag.String("e", ".env", "Set env file path.")
-)
-
-func init() {
-	if _, err := os.Stat(*envFile); os.IsNotExist(err) {
-		log.Println("env file not found, use default env.")
-		return
-	}
-
-	err := godotenv.Load(*envFile)
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
-
-type Application struct {
-	Name       string
-	Host       string
-	Port       int64
-	Config     *config.Config
-	LoadConfig func() error
-	SetupVars  func() error
-	// RegisterModule   func() error
-	RegisterCallback map[CallbackPosition]CallbackFunc
-	// RegisterRouter   func(*gin.Engine) error
-	// engine *gin.Engine
-}
 
 type CallbackPosition int
 
@@ -64,7 +26,7 @@ const (
 
 type CallbackFunc func() error
 
-// var ApplicationInstance *Application
+type Configer interface{}
 
 type DatabaseIface interface {
 	Get(ctx context.Context) *gorm.DB
