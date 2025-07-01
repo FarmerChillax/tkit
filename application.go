@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gitlab-ci.xiaopeng.local/voyager/logan-sdk-go/pkg/xtool"
+	"github.com/FarmerChillax/tkit/pkg/utils"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -33,7 +33,7 @@ func validateApplication(app *Application) error {
 
 	if app.Name == "" {
 		// 如果没有设置应用名称，则从环境变量中获取
-		app.Name = xtool.GetEnvByDefault(EnvKeyApplicationName, "")
+		app.Name = utils.GetEnvByDefault(EnvKeyApplicationName, "")
 		if app.Name == "" {
 			return errors.New("Application name is empty")
 		}
@@ -41,7 +41,7 @@ func validateApplication(app *Application) error {
 
 	// 设置应用版本信息
 	if app.Version == "" {
-		app.Version = xtool.GetEnvByDefault(EnvKeyApplicationVersion, "0.1.0")
+		app.Version = utils.GetEnvByDefault(EnvKeyApplicationVersion, "0.1.0")
 	}
 
 	if app.Callbacks == nil {

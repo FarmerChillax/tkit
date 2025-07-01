@@ -10,6 +10,6 @@ type Runtime interface {
 }
 
 var (
-	ForgeRuntimeName_HTTP  = "forge.runtime.http"
-	ForgeRuntimeName_Event = "forge.runtime.event"
+	RuntimeName_HTTP  = "tkit.runtime.http"
+	RuntimeName_Event = "tkit.runtime.event"
 )
